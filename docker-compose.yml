@@ -1,0 +1,53 @@
+services:
+  db:  # Service de base de données MySQL
+    image: mysql:5.7  # Image officielle MySQL version 5.7
+    container_name: mysql_db  # Nom explicite du conteneur
+    restart: always  # Redémarrage automatique si le conteneur plante
+    environment:  # Variables d’environnement pour initialiser la base
+      MYSQL_ROOT_PASSWORD: ***SUPPRIME***  # Mot de passe root
+      MYSQL_DATABASE: wordpress_db  # Nom de la base à créer
+      MYSQL_USER: wp_user  # Nom de l’utilisateur
+      MYSQL_PASSWORD: ***SUPPRIME***  # Mot de passe utilisateur
+    volumes:
+      - db_data:/var/lib/mysql  # Volume pour persistance des données
+    networks:
+      - wp_net  # Réseau personnalisé utilisé pour l’interconnexion
+
+  phpmyadmin:  # Interface web pour gérer MySQL
+    image: phpmyadmin/phpmyadmin  # Image officielle phpMyAdmin
+    container_name: phpmyadmin_ui  # Nom du conteneur
+    restart: always
+    environment:
+      PMA_HOST: db  # Nom du service MySQL auquel se connecter
+      PMA_PORT: 3306  # Port par défaut MySQL
+    ports:
+      - "8080:80"  # Expose le port 80 de phpMyAdmin sur le port 8080 local
+    networks:
+      - wp_net
+    depends_on:
+      - db  # Ce conteneur dépend de la disponibilité du conteneur db
+
+  wordpress:  # Application web WordPress
+    image: wordpress:latest  # Image officielle WordPress
+    container_name: wordpress_site
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db:3306  # Adresse de la base de données
+      WORDPRESS_DB_NAME: wordpress_db
+      WORDPRESS_DB_USER: wp_user
+      WORDPRESS_DB_PASSWORD: ***SUPPRIME***
+    ports:
+      - "8081:80"  # Expose WordPress sur le port 8081 local
+    volumes:
+      - wp_data:/var/www/html  # Volume pour stocker les données WordPress
+    networks:
+      - wp_net
+    depends_on:
+      - db
+
+volumes:
+  db_data:  # Volume pour MySQL
+  wp_data:  # Volume pour WordPress
+
+networks:
+  wp_net:  # Réseau Docker interne pour relier tous les conteneurs
