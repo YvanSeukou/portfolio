@@ -4,10 +4,10 @@ services:
     container_name: mysql_db  # Nom explicite du conteneur
     restart: always  # Redémarrage automatique si le conteneur plante
     environment:  # Variables d’environnement pour initialiser la base
-      MYSQL_ROOT_PASSWORD: ***SUPPRIME***  # Mot de passe root
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?définir MYSQL_ROOT_PASSWORD dans .env}
       MYSQL_DATABASE: wordpress_db  # Nom de la base à créer
       MYSQL_USER: wp_user  # Nom de l’utilisateur
-      MYSQL_PASSWORD: ***SUPPRIME***  # Mot de passe utilisateur
+      MYSQL_PASSWORD: ${WP_DB_PASSWORD:?définir WP_DB_PASSWORD dans .env}
     volumes:
       - db_data:/var/lib/mysql  # Volume pour persistance des données
     networks:
@@ -35,7 +35,7 @@ services:
       WORDPRESS_DB_HOST: db:3306  # Adresse de la base de données
       WORDPRESS_DB_NAME: wordpress_db
       WORDPRESS_DB_USER: wp_user
-      WORDPRESS_DB_PASSWORD: ***SUPPRIME***
+      WORDPRESS_DB_PASSWORD: ${WP_DB_PASSWORD}
     ports:
       - "8081:80"  # Expose WordPress sur le port 8081 local
     volumes:
